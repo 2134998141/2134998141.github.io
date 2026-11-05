@@ -1,0 +1,3 @@
+var posts=["2026/11/03/MySQL基础入门：数据类型、索引、JOIN与事务/","2026/11/04/Java语言基础：JDK、面向对象、集合与异常/","2026/11/01/Vue3基础入门：CompositionAPI、响应式与组件通信/","2026/11/04/ink-watercolor-journal：把照片变成钢笔淡彩手账/","2026/10/30/JavaScript核心基础：作用域、this、原型链与事件循环/","2025/11/06/hello-world/","2026/11/04/给Hexo博客接入Twikoo评论系统/","2026/11/05/truth-tear：把一张照片撕成一页有体温的纸刊/","2026/10/31/jQuery入门基础：选择器、DOM、事件委托与Ajax/","2026/11/02/uni-app跨端开发基础：目录结构、rpx适配与条件编译/","2025/11/07/使用hexo搭建个人博客/"];function toRandomPost(){
+    pjax.loadUrl('/'+posts[Math.floor(Math.random() * posts.length)]);
+  };
