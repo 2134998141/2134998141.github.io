@@ -528,8 +528,8 @@ window.addEventListener('keydown', (e) => {
         async function initMediaPipe() {
             await startCamera();
             try {
-                const v = await FilesetResolver.forVisionTasks("./vendor/mediapipe/wasm");
-                const opts = (delegate) => ({ baseOptions: { modelAssetPath: "./vendor/hand_landmarker.task", delegate: delegate }, runningMode: "VIDEO", numHands: 1 });
+                const v = await FilesetResolver.forVisionTasks("https://unpkg.com/@mediapipe/tasks-vision@0.10.3/wasm");
+                const opts = (delegate) => ({ baseOptions: { modelAssetPath: "https://unpkg.com/ptmaker-vision-models@1.0.0/hand_landmarker.task", delegate: delegate }, runningMode: "VIDEO", numHands: 1 });
                 try { handLandmarker = await HandLandmarker.createFromOptions(v, opts("GPU")); }
                 catch (errGPU) { console.warn('GPU delegate failed, retry CPU', errGPU); handLandmarker = await HandLandmarker.createFromOptions(v, opts("CPU")); }
                 predictWebcam();
