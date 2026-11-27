@@ -1,0 +1,11 @@
+/* 首页顶部分类卡片：由 4 个增至 5 个，改为五等分宽度 */
+.categoryGroup .categoryItem {
+  width: calc(100% / 5 - 0.43rem) !important;
+}
+/* 悬停展开时略收窄，避免挤压相邻卡片 */
+.categoryGroup .categoryItem:hover {
+  width: calc(100% / 3.2) !important;
+}
+@media screen and (max-width: 768px) {
+  .categoryGroup .categoryItem { width: calc(100% / 5 - 0.2rem) !important; }
+}
