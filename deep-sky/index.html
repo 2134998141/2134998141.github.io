@@ -226,6 +226,8 @@ const DB_NAME = "GrandTreeDB_v17_Clean";
         let scene, camera, renderer, composer, mainGroup, particleSystem=[], photoMeshGroup=new THREE.Group(), snowInstancedMesh, snowDummy=new THREE.Object3D(), snowData=[], clock=new THREE.Clock(), handLandmarker, videoElement, caneTexture, bgmAudio=new Audio(); bgmAudio.loop=true; let isMusicPlaying=false;
         // 星云点云（GPU 星点）：聚合/散开由 uMorph 控制，闪烁由 uTime 控制
         let galaxyPoints=null, dustPoints=null, coreGlowSprite=null, morphCurrent=0;
+        // 星辰相框：每张照片由一圈星点构成（无实心边框），抓取时星点显影
+        let photoStarSystems=[];
 
         async function init() {
             if (EXPORTED_DATA) {
@@ -244,7 +246,7 @@ const DB_NAME = "GrandTreeDB_v17_Clean";
                 if(!EXPORTED_DATA) loadTextConfig();
                 
                 const ps=await loadPhotosFromDB(); 
-                if(ps?.length>0){ photoMeshGroup.clear(); particleSystem=particleSystem.filter(p=>p.type!=='PHOTO'); ps.forEach(i=>createPhotoTexture(i.data, i.id)); } 
+                if(ps?.length>0){ particleSystem.filter(p=>p.type==='PHOTO').forEach(disposePhotoStars); photoMeshGroup.clear(); particleSystem=particleSystem.filter(p=>p.type!=='PHOTO'); ps.forEach(i=>createPhotoTexture(i.data, i.id)); } 
                 
                 const ms=await loadMusicFromDB(); 
                 if(ms){ bgmAudio.src=URL.createObjectURL(ms); if(EXPORTED_DATA) { document.body.addEventListener('click', () => { if(!isMusicPlaying) toggleMusicPlay(); }, { once: true }); } updatePlayBtnUI(false); } 
@@ -398,10 +400,10 @@ window.addEventListener('keydown', (e) => {
             constructor(m,t,d=false){this.mesh=m;this.type=t;this.isDust=d;this.posTree=new THREE.Vector3();this.posScatter=new THREE.Vector3();this.baseScale=m.scale.x;this.photoId=null;const s=(t==='PHOTO')?0.3:2.0;this.spinSpeed=new THREE.Vector3((Math.random()-0.5)*s,(Math.random()-0.5)*s,(Math.random()-0.5)*s);this.calcPos();}
             calcPos(){const R=CONFIG.particles.galaxyRadius,cr=CONFIG.particles.coreRadius,turns=CONFIG.particles.armTurns,spread=CONFIG.particles.armSpread;const u=Math.pow(Math.random(),0.72);const r=cr+(R-cr)*u;const arm=Math.random()<0.5?0:Math.PI;const twist=turns*Math.PI*1.7*(r/R);const jitter=(Math.random()-0.5)*spread*(1+2.2*u)*Math.PI;const a=arm+twist+jitter;const thickness=(0.35+3.6*Math.exp(-r/3.5))*(Math.random()+Math.random()-1);this.posTree.set(Math.cos(a)*r,thickness,Math.sin(a)*r);let rs=this.isDust?(14+Math.random()*22):(9+Math.random()*14);const th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1);this.posScatter.set(rs*Math.sin(ph)*Math.cos(th),rs*Math.sin(ph)*Math.sin(th),rs*Math.cos(ph));}
             update(dt,mode,ft){
-                let tg=this.posTree; if(mode==='SCATTER')tg=this.posScatter; else if(mode==='FOCUS'){if(this.mesh===ft){let off=new THREE.Vector3(0,6,34);if(STATE.focusType===1)off.set(-1.4,7,33);else if(STATE.focusType===2)off.set(1.4,6.5,32);else if(STATE.focusType===3)off.set(0,7.5,31);const im=new THREE.Matrix4().copy(mainGroup.matrixWorld).invert();tg=off.applyMatrix4(im);}else tg=this.posScatter;}
+                let tg=this.posTree; if(mode==='SCATTER')tg=this.posScatter; else if(mode==='FOCUS'){if(this.mesh===ft){let off=new THREE.Vector3(0,6,34);if(STATE.focusType===1)off.set(-0.6,6.4,34);else if(STATE.focusType===2)off.set(0.6,6.2,33.5);else if(STATE.focusType===3)off.set(0,6.8,33);const im=new THREE.Matrix4().copy(mainGroup.matrixWorld).invert();tg=off.applyMatrix4(im);}else tg=this.posScatter;}
                 const ls=(mode==='FOCUS'&&this.mesh===ft)?7.0:2.6; this.mesh.position.lerp(tg,ls*dt);
                 if(mode==='SCATTER'){this.mesh.rotation.x+=this.spinSpeed.x*dt;this.mesh.rotation.y+=this.spinSpeed.y*dt;this.mesh.rotation.z+=this.spinSpeed.z*dt;}else if(mode==='TREE'){this.mesh.rotation.x=THREE.MathUtils.lerp(this.mesh.rotation.x,0,dt);this.mesh.rotation.z=THREE.MathUtils.lerp(this.mesh.rotation.z,0,dt);this.mesh.rotation.y+=0.18*dt;}
-                if(mode==='FOCUS'&&this.mesh===ft){this.mesh.lookAt(camera.position);if(STATE.focusType===1)this.mesh.rotateZ(0.14);if(STATE.focusType===2)this.mesh.rotateZ(-0.08);if(STATE.focusType===3)this.mesh.rotateX(-0.12);}
+                if(mode==='FOCUS'&&this.mesh===ft){this.mesh.lookAt(camera.position);if(STATE.focusType===1)this.mesh.rotateZ(0.07);if(STATE.focusType===2)this.mesh.rotateZ(-0.05);if(STATE.focusType===3)this.mesh.rotateX(-0.06);}
                 const breathe=1+0.07*Math.sin(clock.elapsedTime*1.1+this.mesh.id*0.7);
                 let s=this.baseScale*breathe;if(this.isDust){s=this.baseScale*(0.7+0.5*Math.sin(clock.elapsedTime*CONFIG.snow.speed+this.mesh.id));if(mode==='TREE')s*=0.32;}else if(mode==='SCATTER'&&this.type==='PHOTO')s=this.baseScale*1.6;else if(mode==='FOCUS'){if(this.mesh===ft){if(STATE.focusType===2)s=1.9;else if(STATE.focusType===3)s=2.2;else s=1.7;}else s=this.baseScale*0.8;}this.mesh.scale.lerp(new THREE.Vector3(s,s,s),5*dt);
             }
@@ -529,9 +531,95 @@ window.addEventListener('keydown', (e) => {
             img.onerror=()=>console.warn('photo decode failed',id);
             img.src=b;
         }
+        // 星辰相框专用材质：可单独控制显影(reveal)，星点有呼吸闪烁，边缘柔和
+        function makePhotoStarMaterial(colorTex){
+            return new THREE.ShaderMaterial({
+                uniforms:{uReveal:{value:1},uTime:{value:0},uTex:{value:colorTex||makeStarTexture('rgba(255,255,255,1)','rgba(255,255,255,0.3)')},uScale:{value:IS_MOBILE?16:20}},
+                vertexShader:`attribute vec3 aColor; attribute float aSize; attribute float aPhase;
+                uniform float uReveal; uniform float uTime; uniform float uScale; varying vec3 vColor; varying float vTw; varying float vA;
+                void main(){ vec4 mv=modelViewMatrix*vec4(position,1.0); gl_Position=projectionMatrix*mv;
+                float tw=0.72+0.28*sin(uTime*1.9+aPhase*4.0); vTw=tw; vColor=aColor; vA=uReveal;
+                gl_PointSize=aSize*uScale*(46.0/max(1.0,-mv.z))*(0.8+tw*0.35)*uReveal; }`,
+                fragmentShader:`uniform sampler2D uTex; varying vec3 vColor; varying float vTw; varying float vA;
+                void main(){ vec4 t=texture2D(uTex,gl_PointCoord); if(t.a<0.02||vA<0.01) discard; gl_FragColor=vec4(vColor*t.a*vTw*0.72, t.a*vTw*vA*0.82); }`,
+                transparent:true, depthWrite:false, blending:THREE.AdditiveBlending
+            });
+        }
+        // 把照片纹理采样成星点网格：每个星点取对应像素颜色，暗部过滤，亮度决定星点大小
+        function buildPhotoStarPoints(tex,w,h){
+            const GW=64,GH=64;
+            const src=tex.image;
+            const cv=document.createElement('canvas'); cv.width=GW; cv.height=GH;
+            const cx=cv.getContext('2d',{willReadFrequently:true});
+            try{ cx.drawImage(src,0,0,GW,GH); }catch(e){ return null; }
+            let data; try{ data=cx.getImageData(0,0,GW,GH).data; }catch(e){ return null; }
+            const pos=[],col=[],siz=[],pha=[];
+            for(let gy=0;gy<GH;gy++) for(let gx=0;gx<GW;gx++){
+                const i=(gy*GW+gx)*4;
+                const r=data[i]/255,g=data[i+1]/255,b=data[i+2]/255;
+                const lum=0.2126*r+0.7152*g+0.0722*b;
+                if(lum<0.3) continue; // 过滤暗部，让星点稀疏自然
+                const x=(gx/(GW-1)-0.5)*w, y=(0.5-gy/(GH-1))*h;
+                pos.push(x,y,0); col.push(r*0.62,g*0.62,b*0.62);
+                siz.push(0.12+lum*0.28); pha.push(Math.random()*Math.PI*2);
+            }
+            if(!pos.length) return null;
+            const g=new THREE.BufferGeometry();
+            g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pos),3));
+            g.setAttribute('aColor',new THREE.BufferAttribute(new Float32Array(col),3));
+            g.setAttribute('aSize',new THREE.BufferAttribute(new Float32Array(siz),1));
+            g.setAttribute('aPhase',new THREE.BufferAttribute(new Float32Array(pha),1));
+            return g;
+        }
+        // 沿相框边缘生成一圈星点，替代实心金框
+        function buildFrameStarGeometry(w,h){
+            const pos=[],col=[],siz=[],pha=[],N=72;
+            const cWarm=new THREE.Color(0xb99560), cCool=new THREE.Color(0x7fa8d8);
+            for(let i=0;i<N;i++){
+                const t=i/N*4; let x,y;
+                if(t<1){x=(t-0.5)*w;y=h/2;} else if(t<2){x=w/2;y=(1.5-t)*h;} else if(t<3){x=(2.5-t)*w;y=-h/2;} else{x=-w/2;y=(t-3.5)*h;}
+                x+=(Math.random()-0.5)*0.05; y+=(Math.random()-0.5)*0.05;
+                pos.push(x,y,0);
+                const c=cWarm.clone().lerp(cCool,Math.random()*0.5);
+                col.push(c.r*0.6,c.g*0.6,c.b*0.6); siz.push(0.14+Math.random()*0.14); pha.push(Math.random()*Math.PI*2);
+            }
+            const g=new THREE.BufferGeometry();
+            g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pos),3));
+            g.setAttribute('aColor',new THREE.BufferAttribute(new Float32Array(col),3));
+            g.setAttribute('aSize',new THREE.BufferAttribute(new Float32Array(siz),1));
+            g.setAttribute('aPhase',new THREE.BufferAttribute(new Float32Array(pha),1));
+            return g;
+        }
         function addPhotoToScene(t,id,imgObj){
-            const aspect=imgObj.width/imgObj.height; let w=1.2,h=1.2; if(aspect>1)h=w/aspect; else w=h*aspect;
-            const fg=new THREE.BoxGeometry(w+0.2,h+0.2,0.05); const fm=new THREE.MeshStandardMaterial({color:0xbfa06a,metalness:0.35,roughness:0.6,envMapIntensity:0.35,toneMapped:true}); const f=new THREE.Mesh(fg,fm); const pg=new THREE.PlaneGeometry(w,h); const pm=new THREE.MeshBasicMaterial({map:t,toneMapped:false}); pm.color.setRGB(0.85,0.85,0.85); const p=new THREE.Mesh(pg,pm); p.position.z=0.04; const g=new THREE.Group(); g.add(f); g.add(p); const s=0.8; g.scale.set(s,s,s); photoMeshGroup.add(g); const pt=new Particle(g,'PHOTO',false); pt.photoId=id; pt.texture=t; particleSystem.push(pt);
+            const aspect=imgObj.width/imgObj.height; let w=1.4,h=1.4; if(aspect>1)h=w/aspect; else w=h*aspect;
+            const g=new THREE.Group();
+            const starTex=makeStarTexture('rgba(255,255,255,1)','rgba(255,255,255,0.3)');
+            const mat=makePhotoStarMaterial(starTex);
+            // 帧星点（边缘轮廓）
+            const frameG=buildFrameStarGeometry(w+0.12,h+0.12);
+            const framePts=new THREE.Points(frameG,mat);
+            g.add(framePts);
+            // 照片星点（内容）——由星辰构成画面
+            const photoG=buildPhotoStarPoints(t,w,h);
+            if(photoG){ const photoPts=new THREE.Points(photoG,mat); photoPts.position.z=0.02; g.add(photoPts); }
+            // 极淡的底层贴图兜底：当照片很暗、星点不足时仍能辨认内容，toneMapped 保持与星点同调
+            const pg=new THREE.PlaneGeometry(w,h); const pm=new THREE.MeshBasicMaterial({map:t,transparent:true,opacity:0.14,toneMapped:false,depthWrite:false});
+            const plane=new THREE.Mesh(pg,pm); plane.position.z=-0.02; g.add(plane);
+            g.scale.set(0.8,0.8,0.8);
+            photoMeshGroup.add(g);
+            const starSys={mat,geos:[frameG,photoG].filter(Boolean),plane};
+            photoStarSystems.push(starSys);
+            const pt=new Particle(g,'PHOTO',false); pt.photoId=id; pt.texture=t; pt.starSys=starSys; particleSystem.push(pt);
+        }
+        // 释放某张照片的星辰系统资源
+        function disposePhotoStars(pt){
+            if(!pt||!pt.starSys) return;
+            const idx=photoStarSystems.indexOf(pt.starSys);
+            if(idx>=0) photoStarSystems.splice(idx,1);
+            pt.starSys.geos.forEach(g=>g.dispose());
+            pt.starSys.mat.uniforms.uTex.value?.dispose?.();
+            pt.starSys.mat.dispose();
+            pt.starSys=null;
         }
         window.applyParticleSettings=()=>{
             const ph=particleSystem.filter(p=>p.type==='PHOTO');
@@ -675,8 +763,8 @@ window.addEventListener('keydown', (e) => {
             });
         }
         window.openDeleteManager=async()=>{document.getElementById('delete-manager').classList.remove('hidden');const g=document.getElementById('photo-grid');g.innerHTML='';const ps=await loadPhotosFromDB();if(!ps||ps.length===0)g.innerHTML='<div style="color:#888;">暂无照片</div>';else ps.forEach(p=>{const d=document.createElement('div');d.className='photo-item';const i=document.createElement('img');i.className='photo-thumb';i.src=p.data;const b=document.createElement('div');b.className='delete-x';b.innerText='X';b.onclick=e=>{e.stopPropagation();confirmDelete(p.id,d)};d.appendChild(i);d.appendChild(b);g.appendChild(d)})}
-        window.confirmDelete=(id,el)=>{deletePhotoFromDB(id);el.remove();const p=particleSystem.find(pa=>pa.photoId===id);if(p){photoMeshGroup.remove(p.mesh);particleSystem.splice(particleSystem.indexOf(p),1)}}
-        window.clearAllPhotos=()=>{if(confirm("确定要清空所有照片吗？")){clearPhotosDB();particleSystem.filter(p=>p.type==='PHOTO').forEach(p=>photoMeshGroup.remove(p.mesh));particleSystem=particleSystem.filter(p=>p.type!=='PHOTO');window.openDeleteManager()}}
+        window.confirmDelete=(id,el)=>{deletePhotoFromDB(id);el.remove();const p=particleSystem.find(pa=>pa.photoId===id);if(p){disposePhotoStars(p);photoMeshGroup.remove(p.mesh);particleSystem.splice(particleSystem.indexOf(p),1)}}
+        window.clearAllPhotos=()=>{if(confirm("确定要清空所有照片吗？")){clearPhotosDB();particleSystem.filter(p=>p.type==='PHOTO').forEach(p=>{disposePhotoStars(p);photoMeshGroup.remove(p.mesh)});particleSystem=particleSystem.filter(p=>p.type!=='PHOTO');window.openDeleteManager()}}
         window.closeDeleteManager=()=>{document.getElementById('delete-manager').classList.add('hidden')}
 
         function animate() {
@@ -697,7 +785,19 @@ if(manualRotateState.x!==0||manualRotateState.y!==0){const s=CONFIG.interaction.
             if(dustPoints){dustPoints.material.uniforms.uMorph.value=morphCurrent;dustPoints.material.uniforms.uTime.value=et;}
             if(coreGlowSprite){const k=(1-morphCurrent*0.65)*(0.94+0.06*Math.sin(et*0.8));coreGlowSprite.forEach(sp=>{sp.material.opacity=sp.userData.baseOpacity*k;});}
             // 仅照片粒子仍需逐帧更新（聚焦/抓取），星系粒子交给 GPU
-            particleSystem.forEach(p=>{if(p.type==='PHOTO')p.update(dt,STATE.mode,STATE.focusTarget);});
+            particleSystem.forEach(p=>{
+                if(p.type!=='PHOTO') return;
+                p.update(dt,STATE.mode,STATE.focusTarget);
+                // 星辰相框：仅被抓取聚焦的照片显影，其余隐去，实现「星辰汇聚成像」
+                if(p.starSys){
+                    const isFocused=(STATE.mode==='FOCUS'&&STATE.focusTarget===p.mesh);
+                    const target=isFocused?1:0;
+                    const u=p.starSys.mat.uniforms;
+                    u.uReveal.value+=(target-u.uReveal.value)*Math.min(1,5.0*dt);
+                    u.uTime.value=et;
+                    if(p.starSys.plane) p.starSys.plane.material.opacity=0.14*u.uReveal.value;
+                }
+            });
             composer.render();
         }
         // ================= 移动端运行时 (v17.6.5-m) =================
