@@ -76,8 +76,11 @@
     flex: 0 0 auto !important;
     width: auto !important;
     height: auto !important;
+    min-width: 0 !important;
     margin-right: 0 !important;
   }
+  /* 主题在 ≤1200px 隐藏第 3 个分类卡片，手机端要恢复，保证 5 个胶囊都在 */
+  #home_top .categoryGroup .categoryItem:nth-child(3) { display: block !important; }
   #home_top .categoryGroup a.categoryButton {
     border-radius: 999px !important;
     border: 1px solid var(--ed-line) !important;
