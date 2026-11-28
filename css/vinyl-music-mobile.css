@@ -34,11 +34,13 @@
   /* 覆盖层：顶部一缕暖光 + 底部沉入墨黑，形成纵深 */
   .musicHome .backgroundOverlay {
     background:
-      radial-gradient(120% 62% at 50% -6%, rgba(255, 205, 150, 0.16) 0%, rgba(255, 190, 130, 0) 58%),
+      /* 顶栏压暗，让站名落在干净的深色带上，不再是一层灰雾 */
+      linear-gradient(180deg, rgba(8, 7, 12, 0.74) 0%, rgba(8, 7, 12, 0.28) 9%, rgba(8, 7, 12, 0) 19%),
+      radial-gradient(112% 54% at 50% 10%, rgba(255, 198, 142, 0.13) 0%, rgba(255, 190, 130, 0) 60%),
       radial-gradient(90% 44% at 50% 104%, rgba(0, 0, 0, 0.68) 0%, rgba(0, 0, 0, 0) 70%),
       linear-gradient(180deg,
-        rgba(11, 10, 16, 0.62) 0%,
-        rgba(11, 10, 16, 0.78) 42%,
+        rgba(11, 10, 16, 0.58) 0%,
+        rgba(11, 10, 16, 0.76) 42%,
         rgba(9, 8, 13, 0.94) 100%) !important;
     -webkit-backdrop-filter: blur(2px) saturate(0.95) !important;
     backdrop-filter: blur(2px) saturate(0.95) !important;
