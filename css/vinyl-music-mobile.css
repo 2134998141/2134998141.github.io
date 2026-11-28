@@ -1,0 +1,101 @@
+/* ============================================================
+   vinyl-music-mobile.css — 音乐馆移动端 UI 重设计
+   参考 PC 端视觉语言：封面居中 + 歌词区 + 悬浮玻璃控制卡片
+   原则：只在 ≤768px 生效；只改视觉，不碰任何 JS 绑定的 id/class
+   ============================================================ */
+@media screen and (max-width: 768px) {
+  /* 控制条：从「贴底黑色半透明条」改为「悬浮玻璃卡片」 */
+  .musicHome .playbackControls {
+    position: absolute !important;
+    left: 16px !important;
+    right: 16px !important;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    box-sizing: border-box !important;
+    padding: 18px 18px calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+    background: rgba(28, 26, 24, 0.42) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(1.3) !important;
+    backdrop-filter: blur(24px) saturate(1.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 22px !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+    overflow: visible !important;
+    gap: 14px !important;
+  }
+
+  /* 进度条区：时间是淡白、细线轨道 */
+  .musicHome .progressContainer {
+    margin-bottom: 0 !important;
+    gap: 10px !important;
+    padding: 0 !important;
+  }
+  .musicHome .timeLabel {
+    color: rgba(255, 255, 255, 0.72) !important;
+    font-size: 11px !important;
+    font-variant-numeric: tabular-nums !important;
+    letter-spacing: 0.02em !important;
+    min-width: 34px !important;
+  }
+  .musicHome .progressTrack {
+    height: 3px !important;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.22) !important;
+  }
+  .musicHome .progressFill {
+    background: #fff !important;
+    border-radius: 999px !important;
+  }
+  .musicHome .progressThumb {
+    width: 12px !important;
+    height: 12px !important;
+    margin-top: -4.5px !important;
+    margin-left: -6px !important;
+    background: #fff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  /* 按钮区：PC 端的圆形白底，居中，主按钮放大 */
+  .musicHome .controlButtons {
+    gap: 14px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex: 0 0 auto !important;
+    justify-content: center !important;
+  }
+  .musicHome .controlBtn.secondary {
+    flex: 0 0 44px !important;
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #24211f !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2) !important;
+  }
+  .musicHome .controlBtn.primary {
+    flex: 0 0 58px !important;
+    width: 58px !important;
+    height: 58px !important;
+    border-radius: 50% !important;
+    background: #fff !important;
+    color: #24211f !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28) !important;
+  }
+  .musicHome .controlBtn.secondary svg { width: 19px !important; height: 19px !important; }
+  .musicHome .controlBtn.primary svg { width: 26px !important; height: 26px !important; }
+
+  /* 封面与歌名：给控制卡片留出空间，避免被压 */
+  .musicHome .playerSection {
+    max-height: calc(100dvh - 300px) !important;
+    padding-bottom: 8px !important;
+  }
+  .musicHome .albumArtwork { margin-bottom: 10px !important; }
+  .musicHome .trackTitle {
+    font-family: Georgia, "Songti SC", "SimSun", serif !important;
+    font-size: 19px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.01em !important;
+  }
+  .musicHome .lyricsSection { padding-bottom: 8px !important; }
+}
