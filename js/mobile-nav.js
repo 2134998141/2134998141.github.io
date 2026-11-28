@@ -3,8 +3,7 @@
    当前页高亮基于路径；不改动主题任何 JS 或 DOM
    用多次重试，避免被主题 Pjax/懒加载脚本清理掉 */
 (function () {
-  if (window.innerWidth > 768) return;
-
+  // 不要在脚本加载时一次性判断就退出：窗口缩放 / Pjax 切页后需要动态同步
   var path = location.pathname;
   var items = [
     { label: '首页', href: '/', icon: 'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z', match: function (p) { return p === '/' || /^\/index\.html$/.test(p) || /\/\d{4}\/\d{2}\/\d{2}\//.test(p); } },
@@ -29,8 +28,31 @@
     return true;
   }
 
+  function remove() {
+    var nav = document.querySelector('.ed-mobile-nav');
+    if (nav) nav.remove();
+    document.body.classList.remove('has-ed-mobile-nav');
+  }
+
+  // 根据当前宽度同步：窄屏注入，宽屏移除（解决窗口放大后导航残留的问题）
+  function sync() {
+    if (window.innerWidth <= 768) {
+      document.body.classList.add('has-ed-mobile-nav');
+      build();
+    } else {
+      remove();
+    }
+  }
+
   // 立即 + DOMContentLoaded + 多次延时重试（主题脚本可能重写 body）
-  build();
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build);
-  [100, 400, 1000, 2000].forEach(function (t) { setTimeout(build, t); });
+  sync();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
+  [100, 400, 1000, 2000].forEach(function (t) { setTimeout(sync, t); });
+
+  // 窗口尺寸变化时同步（PC 放大/缩小、浏览器缩放）
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(sync, 120);
+  });
 })();

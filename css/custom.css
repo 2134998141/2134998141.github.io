@@ -9,6 +9,15 @@
 .categoryGroup .categoryItem { width: calc(100% / 5 - 0.43rem) !important; }
 .categoryGroup .categoryItem:hover { width: calc(100% / 3.2) !important; }
 
+/* ---------- 桌面端兜底：移动端底部导航绝不能出现在 PC ----------
+   场景：窗口曾缩小到 ≤768px 时 JS 注入了 .ed-mobile-nav，
+   之后放大回 PC，DOM 残留且样式（在 media 内）失效 → 变成裸链接。
+   这里用纯 CSS 在 >768px 强制隐藏，不依赖 JS 是否清理干净。 */
+@media screen and (min-width: 769px) {
+  .ed-mobile-nav { display: none !important; }
+  body { padding-bottom: 0 !important; }
+}
+
 @media screen and (max-width: 768px) {
   :root {
     --ed-paper: #fffdf8;
