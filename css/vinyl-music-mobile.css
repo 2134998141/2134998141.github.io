@@ -1,61 +1,57 @@
 /* ============================================================
    vinyl-music-mobile.css — 音乐馆 · 移动端视觉重设计
-   设计概念：INK & CHAMPAGNE（深夜黑胶 / 墨黑 × 暖金）
+   设计概念：PAPER SLEEVE（纸上唱片 / 暖纸 × 墨字 × 珊瑚）
    ------------------------------------------------------------
-   为什么重做：上一版是「灰雾背景 + 白色圆钮」，没有焦点、
-   没有色彩关系、留白失控。这一版建立三层秩序：
-     底｜墨黑渐变打底 + 封面取色残影 + 暖光 + 4% 胶片颗粒
-     中｜唱片是唯一主体，暖金色晕衬底，衬线歌名 + 字距 kicker
-     下｜发丝线玻璃控制台，播放键是全页唯一的实心强调色
+   与博客主题的编辑风同源：暖纸底、衬线标题、细发丝线、珊瑚强调。
+   整页被当作一页「唱片画册」来排：
+     底｜暖纸渐变，封面颜色只在水彩般的 16% 里透出来
+     中｜唱片像贴在纸上的一张相片（柔投影），
+        上标 NOW PLAYING + 衬线歌名 + 一道发丝线
+     下｜米白纸卡控制台，进度条珊瑚色，播放键是唯一的墨黑实心
    只作用于 ≤768px；不修改任何 JS 绑定的 id / class / DOM 结构
    ============================================================ */
 @media screen and (max-width: 768px) {
   /* ── 0. 色彩令牌 ───────────────────────────────────────── */
   #vinyl-music.musicHome {
-    --vm-ink: #0b0a10;
-    --vm-ink-2: #16141c;
-    --vm-cream: #f6f1e7;
-    --vm-gold: #ffd6a5;
-    --vm-gold-deep: #e8a878;
-    --vm-line: rgba(255, 246, 231, 0.14);
+    --vm-paper: #fbf7ef;
+    --vm-paper-2: #f2eade;
+    --vm-ink: #241f1a;
+    --vm-ink-soft: rgba(60, 50, 40, 0.42);
+    --vm-ink-faint: rgba(60, 50, 40, 0.24);
+    --vm-line: rgba(120, 100, 75, 0.13);
+    --vm-coral: #e8836a;
+    --vm-coral-2: #f0a184;
   }
 
-  /* ── 1. 底：墨黑 + 封面残影 + 暖光 ─────────────────────── */
-  /* 封面模糊图压暗压饱和，只留下「颜色的气味」，不再是一片泥灰 */
+  /* ── 1. 底：暖纸，封面只作极淡水彩 ─────────────────────── */
   .musicHome .musicBackground {
-    filter: blur(40px) brightness(0.34) saturate(1.45) !important;
-    opacity: 1 !important;
+    filter: blur(64px) brightness(1.95) saturate(1.25) !important;
+    opacity: 0.11 !important;
   }
   .musicHome .musicBackgroundAura {
-    filter: blur(30px) saturate(1.4) !important;
-    opacity: 0.45 !important;
-    mix-blend-mode: soft-light !important;
+    display: none !important;
   }
-  /* 覆盖层：顶部一缕暖光 + 底部沉入墨黑，形成纵深 */
   .musicHome .backgroundOverlay {
     background:
-      /* 顶栏压暗，让站名落在干净的深色带上，不再是一层灰雾 */
-      linear-gradient(180deg, rgba(8, 7, 12, 0.74) 0%, rgba(8, 7, 12, 0.28) 9%, rgba(8, 7, 12, 0) 19%),
-      radial-gradient(112% 54% at 50% 10%, rgba(255, 198, 142, 0.13) 0%, rgba(255, 190, 130, 0) 60%),
-      radial-gradient(90% 44% at 50% 104%, rgba(0, 0, 0, 0.68) 0%, rgba(0, 0, 0, 0) 70%),
+      radial-gradient(130% 46% at 50% 0%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0) 62%),
       linear-gradient(180deg,
-        rgba(11, 10, 16, 0.58) 0%,
-        rgba(11, 10, 16, 0.76) 42%,
-        rgba(9, 8, 13, 0.94) 100%) !important;
-    -webkit-backdrop-filter: blur(2px) saturate(0.95) !important;
-    backdrop-filter: blur(2px) saturate(0.95) !important;
+        rgba(252, 249, 243, 0.93) 0%,
+        rgba(247, 241, 231, 0.90) 48%,
+        rgba(242, 233, 220, 0.94) 100%) !important;
+    -webkit-backdrop-filter: saturate(0.9) !important;
+    backdrop-filter: saturate(0.9) !important;
   }
-  /* 胶片颗粒：这一层让「渐变」变成「材质」 */
+  /* 纸的颗粒感：正片叠底，极淡 */
   .musicHome::after {
     content: "";
     position: fixed;
     inset: 0;
     z-index: 2;
     pointer-events: none;
-    opacity: 0.045;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 140px 140px;
+    opacity: 0.05;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
   }
 
   /* ── 2. 结构：控制台回到文档流，页面自己分配空间 ────────── */
@@ -73,41 +69,38 @@
     justify-content: flex-start !important;
   }
 
-  /* ── 3. 唱片：唯一主体，暖金气晕衬底 ───────────────────── */
+  /* ── 3. 唱片：像贴在纸上的一张相片 ─────────────────────── */
   .musicHome .albumArtwork {
     position: relative;
     flex: 0 0 auto !important;
-    margin: 0 0 6px !important;
-    padding: 6px 0 0 !important;
+    margin: 0 0 4px !important;
+    padding: 8px 0 0 !important;
   }
-  /* 唱片背后的暖光晕——被唱片压住一半，像暗房里的一束光 */
+  /* 相片下的暖色投影晕，代替深色版的光晕 */
   .musicHome .albumArtwork::before {
     content: "";
     position: absolute;
     left: 50%;
-    top: 44%;
-    width: min(88vw, 420px);
-    height: min(88vw, 420px);
+    top: 52%;
+    width: min(78vw, 360px);
+    height: min(40vw, 190px);
     transform: translate(-50%, -50%);
     border-radius: 50%;
     pointer-events: none;
-    background: radial-gradient(circle,
-      rgba(255, 196, 138, 0.20) 0%,
-      rgba(255, 176, 120, 0.08) 42%,
-      rgba(255, 170, 110, 0) 70%);
-    filter: blur(18px);
+    background: radial-gradient(ellipse, rgba(176, 140, 100, 0.13) 0%, rgba(176, 140, 100, 0) 70%);
+    filter: blur(24px);
   }
   .musicHome .artworkContainer {
-    width: min(66vw, 32dvh, 268px) !important;
-    height: min(66vw, 32dvh, 268px) !important;
+    width: min(64vw, 30dvh, 250px) !important;
+    height: min(64vw, 30dvh, 250px) !important;
     max-width: none !important;
     max-height: none !important;
-    border-radius: 18px !important;
-    filter: drop-shadow(0 26px 46px rgba(0, 0, 0, 0.62))
-            drop-shadow(0 2px 0 rgba(255, 232, 200, 0.10));
+    border-radius: 12px !important;
+    filter: drop-shadow(0 1px 1px rgba(80, 62, 44, 0.10))
+            drop-shadow(0 18px 34px rgba(80, 62, 44, 0.22));
   }
   .musicHome .artworkContainer.isPlaying {
-    transform: scale(1.015);
+    transform: scale(1.012);
   }
 
   /* ── 4. 歌名：kicker + 衬线标题 + 发丝线 ───────────────── */
@@ -116,7 +109,7 @@
     flex-direction: column !important;
     align-items: center !important;
     gap: 0 !important;
-    margin: 14px 0 0 !important;
+    margin: 16px 0 0 !important;
     padding: 0 26px !important;
     text-align: center !important;
   }
@@ -125,54 +118,53 @@
     display: block;
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
     font-size: 9px;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1;
     letter-spacing: 0.34em;
     text-indent: 0.34em;
-    color: rgba(255, 214, 165, 0.62);
-    margin-bottom: 9px;
+    color: rgba(160, 118, 84, 0.85);
+    margin-bottom: 10px;
   }
   .musicHome .trackTitle {
     font-family: Georgia, "Songti SC", "Times New Roman", serif !important;
-    font-size: 20px !important;
+    font-size: 21px !important;
     font-weight: 600 !important;
     line-height: 1.32 !important;
-    letter-spacing: 0.015em !important;
-    color: var(--vm-cream) !important;
-    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.01em !important;
+    color: var(--vm-ink) !important;
+    text-shadow: none !important;
     max-width: 100% !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
   }
-  /* 标题下的一道短发丝线，编辑感的锚点 */
   .musicHome .trackInfo::after {
     content: "";
     display: block;
-    width: 20px;
+    width: 22px;
     height: 1px;
-    margin-top: 11px;
-    background: rgba(255, 214, 165, 0.42);
+    margin-top: 12px;
+    background: rgba(160, 130, 100, 0.45);
   }
 
-  /* ── 5. 歌词：居中、字号克制、当前句才发光 ─────────────── */
+  /* ── 5. 歌词：居中、墨字、当前句才加重 ─────────────────── */
   .musicHome .lyricsSection {
     flex: 1 1 0 !important;
     min-height: 0 !important;
     margin: 0 !important;
-    padding: 6px 0 10px !important;
+    padding: 4px 0 8px !important;
     align-items: stretch !important;
   }
   .musicHome .lyricsScroll {
     -webkit-mask: linear-gradient(180deg,
       rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 1) 16%,
-      rgba(0, 0, 0, 1) 84%,
+      rgba(0, 0, 0, 1) 15%,
+      rgba(0, 0, 0, 1) 85%,
       rgba(0, 0, 0, 0) 100%) !important;
     mask: linear-gradient(180deg,
       rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 1) 16%,
-      rgba(0, 0, 0, 1) 84%,
+      rgba(0, 0, 0, 1) 15%,
+      rgba(0, 0, 0, 1) 85%,
       rgba(0, 0, 0, 0) 100%) !important;
   }
   .musicHome .lyricsScrollContent {
@@ -188,30 +180,30 @@
     font-weight: 400 !important;
     line-height: 1.7 !important;
     letter-spacing: 0.03em !important;
-    color: rgba(246, 241, 231, 0.30) !important;
+    color: var(--vm-ink-soft) !important;
     filter: none !important;
     text-shadow: none !important;
   }
   .musicHome .lyricItem.isPassed .lyricText {
-    color: rgba(246, 241, 231, 0.22) !important;
+    color: var(--vm-ink-faint) !important;
   }
   .musicHome .lyricItem.isUpcoming .lyricText {
-    color: rgba(246, 241, 231, 0.30) !important;
+    color: var(--vm-ink-soft) !important;
   }
   .musicHome .lyricItem.isCurrent .lyricText {
-    font-size: 16.5px !important;
+    font-size: 17px !important;
     font-weight: 600 !important;
-    color: var(--vm-cream) !important;
+    color: var(--vm-ink) !important;
     letter-spacing: 0.02em !important;
-    text-shadow: 0 0 26px rgba(255, 196, 138, 0.28) !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) !important;
   }
   .musicHome .lyricItem.noLyrics .lyricText {
     font-size: 12.5px !important;
-    color: rgba(246, 241, 231, 0.26) !important;
+    color: var(--vm-ink-faint) !important;
     letter-spacing: 0.14em !important;
   }
 
-  /* ── 6. 控制台：发丝线玻璃卡，进文档流 ─────────────────── */
+  /* ── 6. 控制台：米白纸卡，进度珊瑚，播放键墨黑 ─────────── */
   .musicHome .playbackControls {
     position: relative !important;
     top: auto !important;
@@ -231,19 +223,19 @@
     flex-direction: column !important;
     justify-content: flex-start !important;
     overflow: visible !important;
-    border-radius: 24px !important;
-    border: 1px solid var(--vm-line) !important;
+    border-radius: 22px !important;
+    border: 1px solid rgba(120, 100, 75, 0.10) !important;
     background:
-      linear-gradient(180deg, rgba(40, 36, 46, 0.66) 0%, rgba(14, 12, 19, 0.78) 100%) !important;
-    -webkit-backdrop-filter: blur(26px) saturate(1.25) !important;
-    backdrop-filter: blur(26px) saturate(1.25) !important;
+      linear-gradient(180deg, rgba(255, 253, 248, 0.90) 0%, rgba(252, 247, 238, 0.86) 100%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(1.1) !important;
+    backdrop-filter: blur(24px) saturate(1.1) !important;
     box-shadow:
-      0 22px 44px -16px rgba(0, 0, 0, 0.86),
-      0 2px 10px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 246, 231, 0.09) !important;
+      0 20px 40px -20px rgba(84, 64, 44, 0.40),
+      0 2px 6px rgba(84, 64, 44, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
   }
 
-  /* 进度：暖金细线 */
+  /* 进度：珊瑚细线 */
   .musicHome .progressContainer {
     margin: 0 !important;
     padding: 0 !important;
@@ -256,36 +248,35 @@
     font-weight: 500 !important;
     letter-spacing: 0.05em !important;
     font-variant-numeric: tabular-nums !important;
-    color: rgba(246, 241, 231, 0.52) !important;
+    color: rgba(90, 76, 60, 0.52) !important;
   }
-  /* 左时间左对齐、右时间右对齐，让进度条两端更干净 */
   .musicHome .timeLabel:first-of-type { text-align: left !important; }
   .musicHome .timeLabel:last-of-type { text-align: right !important; }
   .musicHome .progressTrack {
     height: 3px !important;
     border-radius: 999px !important;
-    background: rgba(255, 246, 231, 0.13) !important;
+    background: rgba(90, 76, 60, 0.13) !important;
     overflow: visible !important;
   }
   .musicHome .progressBuffer {
-    background: rgba(255, 246, 231, 0.18) !important;
+    background: rgba(90, 76, 60, 0.09) !important;
     border-radius: 999px !important;
   }
   .musicHome .progressFill {
     border-radius: 999px !important;
-    background: linear-gradient(90deg, #f0b27a 0%, #ffd9ac 100%) !important;
-    box-shadow: 0 0 10px rgba(255, 190, 130, 0.45) !important;
+    background: linear-gradient(90deg, var(--vm-coral) 0%, var(--vm-coral-2) 100%) !important;
+    box-shadow: 0 0 8px rgba(232, 131, 106, 0.30) !important;
   }
   .musicHome .progressThumb {
     width: 11px !important;
     height: 11px !important;
     margin-top: -4px !important;
     margin-left: -5.5px !important;
-    background: var(--vm-gold) !important;
-    box-shadow: 0 0 0 3px rgba(11, 10, 16, 0.55), 0 2px 10px rgba(255, 190, 130, 0.6) !important;
+    background: #fff !important;
+    box-shadow: 0 0 0 2px var(--vm-coral), 0 2px 6px rgba(84, 64, 44, 0.25) !important;
   }
 
-  /* 按钮：次级只用发丝线勾边，主键是全页唯一实心色 */
+  /* 按钮：次级勾发丝线，主键是唯一的墨黑实心 */
   .musicHome .controlButtons {
     flex: 0 0 auto !important;
     margin: 0 !important;
@@ -301,8 +292,8 @@
     height: 40px !important;
     border-radius: 50% !important;
     background: transparent !important;
-    border: 1px solid rgba(255, 246, 231, 0.13) !important;
-    color: rgba(246, 241, 231, 0.72) !important;
+    border: 1px solid rgba(90, 76, 60, 0.15) !important;
+    color: rgba(60, 50, 40, 0.72) !important;
     box-shadow: none !important;
   }
   .musicHome .controlBtn.primary {
@@ -311,11 +302,11 @@
     height: 54px !important;
     border-radius: 50% !important;
     border: none !important;
-    color: #1a1410 !important;
-    background: linear-gradient(160deg, #ffe0bc 0%, #eaa97b 100%) !important;
+    color: #fdf9f1 !important;
+    background: linear-gradient(180deg, #2e2821 0%, #1c1712 100%) !important;
     box-shadow:
-      0 10px 24px -6px rgba(232, 168, 120, 0.55),
-      inset 0 1px 0 rgba(255, 255, 255, 0.55) !important;
+      0 10px 20px -8px rgba(60, 44, 30, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
   }
   .musicHome .controlBtn.secondary svg {
     width: 17px !important;
@@ -332,8 +323,8 @@
     transform: scale(0.94);
   }
   .musicHome .controlBtn.secondary:hover:not(:disabled) {
-    background: rgba(255, 246, 231, 0.07) !important;
-    color: var(--vm-cream) !important;
+    background: rgba(90, 76, 60, 0.06) !important;
+    color: var(--vm-ink) !important;
     transform: none !important;
   }
 }
@@ -341,32 +332,60 @@
 /* ── 7. 矮屏：只压缩唱片，不动字号节奏 ───────────────────── */
 @media screen and (max-width: 768px) and (max-height: 720px) {
   .musicHome .artworkContainer {
-    width: min(58vw, 26dvh, 220px) !important;
-    height: min(58vw, 26dvh, 220px) !important;
+    width: min(56vw, 25dvh, 210px) !important;
+    height: min(56vw, 25dvh, 210px) !important;
   }
-  .musicHome .trackInfo { margin-top: 10px !important; }
-  .musicHome .trackTitle { font-size: 18px !important; }
+  .musicHome .trackInfo { margin-top: 12px !important; }
+  .musicHome .trackTitle { font-size: 19px !important; }
   .musicHome .playbackControls { padding: 12px 16px 11px !important; gap: 11px !important; }
   .musicHome .controlBtn.secondary { flex-basis: 38px !important; width: 38px !important; height: 38px !important; }
   .musicHome .controlBtn.primary { flex-basis: 50px !important; width: 50px !important; height: 50px !important; }
 }
 @media screen and (max-width: 768px) and (max-height: 620px) {
   .musicHome .artworkContainer {
-    width: min(48vw, 22dvh, 176px) !important;
-    height: min(48vw, 22dvh, 176px) !important;
+    width: min(46vw, 21dvh, 168px) !important;
+    height: min(46vw, 21dvh, 168px) !important;
   }
   .musicHome .lyricItem { padding: 4px 0 !important; }
   .musicHome .lyricText { font-size: 12.5px !important; }
   .musicHome .lyricItem.isCurrent .lyricText { font-size: 15px !important; }
 }
 
-/* ── 8. 深色页面上，主题顶栏文字必须是浅色 ───────────────── */
-[data-theme="light"] body:has(#vinyl-music) #nav .site-page,
-[data-theme="light"] body:has(#vinyl-music) #nav #site-name,
-[data-theme="light"] body:has(#vinyl-music) #nav #site-name i,
-[data-theme="light"] body:has(#vinyl-music) #nav #nav-right .nav-button a,
-[data-theme="light"] body:has(#vinyl-music) #nav #nav-right .nav-button i,
-[data-theme="light"] body:has(#vinyl-music) #nav #toggle-menu {
-  color: rgba(246, 241, 231, 0.92) !important;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+/* ── 8. 浅色纸底上，主题顶栏文字必须是深墨色 ─────────────── */
+/* 注意：PC 端音乐页仍是深色模糊底，需要浅色字；这里只覆盖移动端 */
+@media screen and (max-width: 768px) {
+  [data-theme="light"] body:has(#vinyl-music) #nav .site-page,
+  [data-theme="light"] body:has(#vinyl-music) #nav #site-name,
+  [data-theme="light"] body:has(#vinyl-music) #nav #site-name i,
+  [data-theme="light"] body:has(#vinyl-music) #nav #nav-right .nav-button a,
+  [data-theme="light"] body:has(#vinyl-music) #nav #nav-right .nav-button i,
+  [data-theme="light"] body:has(#vinyl-music) #nav #toggle-menu {
+    color: var(--vm-ink, #241f1a) !important;
+    text-shadow: none !important;
+  }
+}
+
+/* ── 9. 播放列表抽屉跟随浅色纸卡语言 ─────────────────────── */
+@media screen and (max-width: 768px) {
+  body:has(#vinyl-music) .playlistPanel {
+    background: #fdfaf4 !important;
+    border-top: 1px solid rgba(120, 100, 75, 0.12) !important;
+    box-shadow: 0 -18px 40px -24px rgba(84, 64, 44, 0.4) !important;
+  }
+  body:has(#vinyl-music) .playlistHeader {
+    border-bottom: 1px solid rgba(120, 100, 75, 0.10) !important;
+  }
+  body:has(#vinyl-music) .playlistTitle {
+    font-family: Georgia, "Songti SC", "Times New Roman", serif !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    color: #241f1a !important;
+  }
+  body:has(#vinyl-music) .playlistCount,
+  body:has(#vinyl-music) .closeBtn {
+    color: rgba(90, 76, 60, 0.55) !important;
+  }
+  body:has(#vinyl-music) .handleBar {
+    background: rgba(90, 76, 60, 0.22) !important;
+  }
 }
