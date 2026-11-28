@@ -1,11 +1,218 @@
-/* 首页顶部分类卡片：由 4 个增至 5 个，改为五等分宽度 */
-.categoryGroup .categoryItem {
-  width: calc(100% / 5 - 0.43rem) !important;
-}
-/* 悬停展开时略收窄，避免挤压相邻卡片 */
-.categoryGroup .categoryItem:hover {
-  width: calc(100% / 3.2) !important;
-}
+/* ============================================================
+   custom.css — 移动端 UI（杂志编辑风 · 换肤式改造）
+   设计稿：D:\前端\移动端布局设计\style-ed.html
+   原则：只在 ≤768px 生效；保留主题原生手机布局与所有 JS 交互，
+         只改配色、字体、圆角、字号，不强行改结构（避免布局错乱）
+   ============================================================ */
+
+/* ---------- 桌面端：首页分类卡片 4→5 等分（保留原行为） ---------- */
+.categoryGroup .categoryItem { width: calc(100% / 5 - 0.43rem) !important; }
+.categoryGroup .categoryItem:hover { width: calc(100% / 3.2) !important; }
+
 @media screen and (max-width: 768px) {
-  .categoryGroup .categoryItem { width: calc(100% / 5 - 0.2rem) !important; }
+  :root {
+    --ed-paper: #fffdf8;
+    --ed-ink: #24211f;
+    --ed-sub: #6b6560;
+    --ed-line: rgba(36,33,31,.13);
+    --ed-accent: #e97b61;
+    --ed-accent-soft: rgba(233,123,97,.09);
+  }
+
+  /* ===== 1. 首页顶部：主题原生横滑区保留，但整体换成暖纸底 ===== */
+  #home_top,
+  #home_top #bannerGroup,
+  #home_top .swiper_container_card { background: var(--ed-paper) !important; }
+
+  /* 主题手机端 bannerGroup 固定高度约 330px，分类横排后留下大片空白；压缩 */
+  #home_top #bannerGroup,
+  #home_top .swiper_container_card { height: auto !important; min-height: 0 !important; }
+  #home_top .categoryGroup { min-height: 0 !important; }
+
+  /* 报头（若主题渲染了 .banners-title） */
+  #home_top .banners-title-big {
+    font-family: Georgia, "Songti SC", "SimSun", serif !important;
+    font-size: 27px !important;
+    font-weight: 700 !important;
+    color: var(--ed-ink) !important;
+  }
+  #home_top .banners-title-small { color: var(--ed-sub) !important; font-size: 11px !important; }
+
+  /* 首页顶部分类卡：主题手机端把 categoryGroup 设为竖排（flex-column），
+     这里改回横向一排胶囊，解决首屏被 5 个大卡片占满的问题 */
+  #home_top .categoryGroup {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+  }
+  #home_top .categoryGroup .categoryItem {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    height: auto !important;
+    margin-right: 0 !important;
+  }
+  #home_top .categoryGroup a.categoryButton {
+    border-radius: 999px !important;
+    border: 1px solid var(--ed-line) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--ed-ink) !important;
+  }
+  #home_top .categoryGroup .categoryItem:first-child a.categoryButton {
+    background: var(--ed-accent) !important;
+    color: #fff !important;
+    border-color: var(--ed-accent) !important;
+  }
+  #home_top .categoryGroup a.categoryButton i,
+  #home_top .categoryGroup a.categoryButton svg { display: none !important; }
+  .categoryButtonText { padding-left: 0 !important; text-align: center !important; }
+  /* 分类胶囊超出屏幕时可横向滑动 */
+  #home_top .swiper_container_card { overflow-x: auto !important; overflow-y: hidden !important; -webkit-overflow-scrolling: touch; }
+  #home_top .swiper_container_card::-webkit-scrollbar { display: none; }
+
+  /* ===== 2. 主题顶部标签栏（首页/前端开发/…/更多）：衬线 + 珊瑚高亮 ===== */
+  #category-bar,
+  #category-bar .category-bar-items {
+    background: var(--ed-paper) !important;
+    border-bottom: 1px solid var(--ed-line) !important;
+  }
+  #category-bar .category-bar-item a,
+  #category-bar .category-bar-item.select a,
+  #category-bar .category-bar-item {
+    font-family: Georgia, "Songti SC", serif !important;
+    color: var(--ed-ink) !important;
+    font-size: 15px !important;
+  }
+  #category-bar .category-bar-item.select,
+  #category-bar .category-bar-item.select a {
+    color: var(--ed-accent) !important;
+    font-weight: 700 !important;
+  }
+
+  /* ===== 3. 文章列表：保留主题布局，只改标题字体与细线分隔 ===== */
+  #recent-posts > .recent-post-item {
+    border-bottom: 1px solid var(--ed-line) !important;
+    box-shadow: none !important;
+  }
+  #recent-posts .recent-post-info .article-title,
+  #recent-posts .article-title {
+    font-family: Georgia, "Songti SC", "SimSun", serif !important;
+    color: var(--ed-ink) !important;
+    font-size: 19px !important;
+    line-height: 1.4 !important;
+  }
+  #recent-posts .article-meta-wrap,
+  #recent-posts .recent-post-info .article-meta {
+    color: var(--ed-sub) !important;
+    font-size: 11px !important;
+  }
+  /* 注意：不碰 .content 的 height/opacity —— 主题原本在手机端隐藏摘要，
+     强行显示会与标题重叠（已验证） */
+
+  /* 首页推荐大卡的标题字体 */
+  #topPostGroup .article-title { font-family: Georgia, "Songti SC", serif !important; }
+
+  /* ===== 4. 文章详情页：衬线大标题 + 首字下沉 + 珊瑚引文 + 深色代码 ===== */
+  #post article.post-content header h1,
+  #post h1#CrawlerTitle {
+    font-family: Georgia, "Songti SC", "SimSun", serif !important;
+    font-size: 28px !important;
+    line-height: 1.3 !important;
+    color: var(--ed-ink) !important;
+  }
+  #post .post-meta-categories,
+  #post .post-content header time,
+  #post .post-content header span {
+    color: var(--ed-sub) !important;
+    font-size: 11px !important;
+  }
+  #post .post-meta-categories { color: var(--ed-accent) !important; }
+  #post article.post-content > p {
+    font-size: 14px !important;
+    line-height: 1.9 !important;
+    color: rgba(36,33,31,.84) !important;
+  }
+  #post article.post-content > p:first-of-type::first-letter {
+    font-family: Georgia, serif !important;
+    font-size: 42px !important;
+    float: left !important;
+    line-height: 1 !important;
+    padding: 4px 8px 0 0 !important;
+    color: var(--ed-accent) !important;
+  }
+  #post .post-content blockquote {
+    border-left: 3px solid var(--ed-accent) !important;
+    background: var(--ed-accent-soft) !important;
+    border-radius: 0 !important;
+    color: var(--ed-ink) !important;
+    font-family: Georgia, "Songti SC", serif !important;
+    font-size: 14px !important;
+    font-style: italic !important;
+  }
+  #post .post-content pre,
+  #post .post-content figure.highlight,
+  #post .post-content .highlight {
+    background: #24211f !important;
+    border-radius: 10px !important;
+    border: none !important;
+  }
+  #post .post-content pre code,
+  #post .post-content .highlight pre {
+    color: #e9d7a9 !important;
+    font-family: Consolas, Monaco, monospace !important;
+    font-size: 11px !important;
+  }
+  #post .post-content h2, #post .post-content h3 {
+    font-family: Georgia, "Songti SC", serif !important;
+    color: var(--ed-ink) !important;
+  }
+
+  /* ===== 5. 内页标题：衬线 ===== */
+  h1.page-title,
+  #page-title,
+  .archive-page-header h1,
+  .post-collapse > h3,
+  .post-collapse > .post-collapse-title {
+    font-family: Georgia, "Songti SC", serif !important;
+    color: var(--ed-ink) !important;
+  }
+  .post-collapse > h3,
+  .post-collapse > .post-collapse-title { color: var(--ed-accent) !important; }
+
+  /* ===== 6. 组件轻改造：评论区发送按钮、搜索框 ===== */
+  .tk-send, .tk-owa .tk-submit button {
+    background: var(--ed-accent) !important;
+    border-radius: 8px !important;
+  }
+  #local-search-input,
+  #local-search .search-input {
+    border: 1px solid var(--ed-line) !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+  }
+
+  /* ===== 7. 底部导航（JS 注入 .ed-mobile-nav） ===== */
+  .ed-mobile-nav {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    height: calc(56px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    display: flex; align-items: center; justify-content: space-around;
+    background: var(--ed-paper);
+    border-top: 1px solid var(--ed-line);
+    z-index: 9000;
+  }
+  .ed-mobile-nav a {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 3px;
+    height: 100%; font-size: 10px;
+    color: rgba(36,33,31,.5); text-decoration: none;
+  }
+  .ed-mobile-nav a.on,
+  .ed-mobile-nav a.active { color: var(--ed-accent) !important; }
+  .ed-mobile-nav a svg { width: 18px; height: 18px; }
+  /* 给正文留底部空间 */
+  body { padding-bottom: calc(56px + env(safe-area-inset-bottom)) !important; }
 }

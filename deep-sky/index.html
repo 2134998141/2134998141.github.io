@@ -180,6 +180,125 @@
             #webcam-wrapper { width: 78px; height: 58px; }
             #title-container { top: 4%; }
         }
+/* ============================================================
+   交互页移动端 UI 精修补丁（星海深处 / 圣诞树 共用）
+   设计稿：mobile-ui-interaction-redesign.html
+   原则：只改视觉尺寸/圆角/间距，不碰 .hidden / .panel-hidden / .camera-hidden 的显隐机制
+   配色通过 --accent-gold / --accent-gold-gradient 自动适配冷蓝 / 暖金
+   ============================================================ */
+@media (max-width: 760px), (hover: none) and (pointer: coarse) {
+  /* ---------- 移动控制条：更大触控区、更精致 ---------- */
+  #mobile-bar { gap: 7px; }
+  .mbtn {
+    height: 62px;
+    border-radius: 14px;
+    border-color: rgba(159,198,255,.32);
+    background: rgba(10,18,36,.86);
+    box-shadow: 0 8px 26px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);
+    font-size: 11px;
+    letter-spacing: .5px;
+    color: var(--accent-gold);
+  }
+  .mbtn b { font-size: 21px; line-height: 1.1; }
+  .mbtn:active { transform: scale(.96); }
+
+  /* ---------- 设置面板：全屏底部抽屉、圆角顶、分区标签 ---------- */
+  #left-sidebar {
+    border-radius: 24px 24px 0 0 !important;
+    background: rgba(10,18,36,.94) !important;
+    border: 1px solid rgba(159,198,255,.24) !important;
+    box-shadow: 0 18px 50px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06) !important;
+    max-height: 72dvh;
+    padding-top: 0;
+  }
+  #left-sidebar::before {
+    content: ""; display: block; width: 38px; height: 4px; border-radius: 2px;
+    background: rgba(159,198,255,.35); margin: 9px auto 2px; flex: none;
+  }
+  #left-sidebar .ui-title-main { font-size: 17px; padding: 10px 0 8px; letter-spacing: 3px; }
+  .ui-title-sub {
+    font-size: 10px; letter-spacing: .18em; color: var(--accent-gold);
+    border-bottom: 1px solid rgba(159,198,255,.2); padding-bottom: 5px; margin: 14px 0 10px;
+  }
+  .control-label { font-size: 12px; color: #bcd4f5; }
+  .elegant-btn {
+    min-height: 44px; font-size: 12px !important; border-radius: 11px;
+    border-color: rgba(159,198,255,.3);
+    background: rgba(159,198,255,.07);
+  }
+  .elegant-btn:active { transform: scale(.98); }
+  input[type=range] { height: 30px; }
+  input[type=range]::-webkit-slider-thumb { height: 18px; width: 18px; margin-top: -9px; }
+  .input-glass, select.input-glass, input[type=text] { height: 42px; font-size: 16px !important; border-radius: 9px; }
+  .particle-scroll-container { max-height: 190px; }
+  .bottom-left-panel { border-radius: 16px; }
+  .bottom-left-panel .elegant-btn { min-height: 44px; }
+  .dir-btn { min-height: 46px; line-height: 46px; font-size: 17px; border-radius: 10px; }
+
+  /* ---------- 照片管理弹窗：全屏网格、大图格、固定底部操作栏 ---------- */
+  #delete-manager {
+    background: rgba(6,10,20,.94) !important;
+    justify-content: flex-start !important;
+    box-sizing: border-box !important;
+    padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+    backdrop-filter: blur(12px);
+  }
+  .manager-title {
+    font-size: 20px; letter-spacing: 3px; padding: 8px 0 12px;
+    color: var(--accent-gold); position: relative; width: 100%; text-align: center;
+  }
+  .manager-title::after {
+    content: ""; display: block; width: 40px; height: 3px; border-radius: 2px;
+    background: var(--accent-gold-gradient); margin: 8px auto 0;
+  }
+  #photo-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-auto-rows: minmax(108px, auto);
+    gap: 11px !important;
+    width: 100% !important; height: auto !important; flex: 1;
+    max-height: none !important; overflow-y: auto;
+    padding: 4px 2px 12px !important; margin: 0 !important;
+    border: none !important; background: transparent !important;
+    align-content: start;
+  }
+  .photo-item {
+    width: 100% !important; height: 100% !important; min-height: 108px;
+    border-radius: 12px !important; border: 1px solid rgba(159,198,255,.24) !important;
+    overflow: hidden; box-sizing: border-box;
+  }
+  .photo-thumb { border-radius: 11px; }
+  .delete-x {
+    top: 7px !important; right: 7px !important; width: 26px !important; height: 26px !important;
+    line-height: 24px !important; font-size: 15px !important; border-radius: 50% !important;
+  }
+  .manager-actions {
+    display: flex; gap: 10px; width: 100%; padding: 12px 0 4px; flex: none;
+  }
+  .manager-actions .elegant-btn { flex: 1; min-height: 46px; }
+
+  /* ---------- 手势提示：底部大字提示条 ---------- */
+  #gesture-hint {
+    font-size: 12px; letter-spacing: .5px; line-height: 1.6;
+    padding: 8px 14px; border-radius: 10px;
+    background: rgba(10,18,36,.55); width: auto; left: 16px; right: 16px;
+    color: var(--accent-gold);
+  }
+
+  /* ---------- 面板打开时：收起主标题与底部控制条，避免遮挡/叠字 ---------- */
+  /* 仅视觉层级，不改动任何 JS 显隐（.hidden / .panel-hidden 照常由 JS 控制） */
+  body:has(#left-sidebar:not(.panel-hidden)) #title-container { opacity: 0; pointer-events: none; }
+  body:has(#delete-manager:not(.hidden)) #title-container,
+  body:has(#delete-manager:not(.hidden)) #mobile-bar,
+  body:has(#delete-manager:not(.hidden)) #gesture-hint,
+  body:has(#delete-manager:not(.hidden)) #left-sidebar { opacity: 0 !important; pointer-events: none !important; }
+  /* 照片管理空状态居中（JS 会插入 <div style="color:#888">暂无照片</div>） */
+  #photo-grid > div:only-child:not(.photo-item) {
+    display: flex !important; align-items: center; justify-content: center;
+    width: 100%; min-height: 200px; font-size: 13px; color: rgba(159,198,255,.6) !important;
+  }
+}
+
     </style><script type="importmap">
         { "imports": { "three": "./vendor/three/build/three.module.js", "three/addons/": "./vendor/three/examples/jsm/", "@mediapipe/tasks-vision": "./vendor/mediapipe/vision_bundle.mjs" } }
     </script></head><body><div id="loader"><div class="spinner"></div><div class="loader-text">SYSTEM INITIALIZING</div></div><div id="canvas-container"></div><div id="title-container"><h1 id="display-line1" class="title-line">DEEP SKY</h1><h1 id="display-line2" class="title-line">星海深处</h1></div><div id="ui-layer"><div id="top-right-controls"><button class="elegant-btn glass-panel" id="fs-btn" onclick="toggleFullScreen()" style="padding: 6px 12px;">⛶ 全屏显示</button><button class="elegant-btn glass-panel" id="toggle-ui-btn" onclick="toggleUI()" style="padding: 6px 12px;">👁 隐藏界面</button></div><div id="left-sidebar"><div class="top-left-panel glass-panel"><div class="ui-title-main">场景定制</div> 
