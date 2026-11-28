@@ -19,6 +19,21 @@
     --ed-accent-soft: rgba(233,123,97,.09);
   }
 
+  /* ===== 0. 兜底：强制隐藏顶部导航菜单 =====
+     主题靠 JS 给 #nav 加 .hide-menu 来隐藏 .menus_items；
+     若主题 JS 报错中断（手机端偶发），菜单会全部显示并挤成竖排重叠。
+     这里用纯 CSS 兜底，不依赖 JS，确保任何情况下手机端都不出错乱。 */
+  #nav .menus_items,
+  #menus .menus_items,
+  #nav #menus .menus_items {
+    display: none !important;
+  }
+  /* 菜单隐藏后，确保汉堡菜单按钮可见，用户仍能打开导航 */
+  #nav #toggle-menu,
+  #toggle-menu {
+    display: inline-block !important;
+  }
+
   /* ===== 1. 首页顶部：主题原生横滑区保留，但整体换成暖纸底 ===== */
   #home_top,
   #home_top #bannerGroup,
