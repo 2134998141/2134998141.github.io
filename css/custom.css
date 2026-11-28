@@ -18,6 +18,12 @@
   body { padding-bottom: 0 !important; }
 }
 
+/* ---------- 沉浸式页面兜底：音乐馆隐藏底部导航 ----------
+   主题 Aplayer 的播放控制条固定在底部，与导航重叠；
+   这里用 CSS 兜底，即使 JS 注入了也隐藏，并恢复播放器所需的底部空间。 */
+body[data-type="music"] .ed-mobile-nav { display: none !important; }
+body[data-type="music"] { padding-bottom: 0 !important; }
+
 @media screen and (max-width: 768px) {
   :root {
     --ed-paper: #fffdf8;

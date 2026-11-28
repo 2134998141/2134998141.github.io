@@ -47,9 +47,18 @@
     document.body.classList.remove('has-ed-mobile-nav');
   }
 
+  // 沉浸式页面：不注入底部导航（播放器按钮会被导航遮挡）
+  // 音乐馆是主题全屏 Aplayer，底部有自己的播放控制条，导航多余
+  function isExcluded() {
+    var p = location.pathname;
+    if (/\/music\/?$/.test(p)) return true;                    // 音乐馆路径
+    if (document.body && document.body.getAttribute('data-type') === 'music') return true; // 主题标记
+    return false;
+  }
+
   // 根据当前宽度同步：窄屏注入，宽屏移除（解决窗口放大后导航残留的问题）
   function sync() {
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 768 && !isExcluded()) {
       document.body.classList.add('has-ed-mobile-nav');
       build();
     } else {
