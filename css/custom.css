@@ -43,15 +43,53 @@
     display: inline-block !important;
   }
 
-  /* ===== 1. 首页顶部：主题原生横滑区保留，但整体换成暖纸底 ===== */
+  /* ===== 1. 首页顶部：分类导航重做（设计稿 style-ed.html） =====
+     主题原生结构：.swiper_container_card(flex 横滑) 里并排
+       ├ #bannerGroup(宽200) → .categoryGroup(5个分类，被压成37×82竖条)
+       └ .topGroup(宽1248) → 横滑文章卡片(视觉上像和分类重叠)
+     设计稿要的是：分类独占一行 + 紧凑胶囊 + 推荐卡片在下方横滑。
+     做法：把横滑容器改为纵向堆叠，分类区脱离固定宽度，胶囊重做。 */
   #home_top,
   #home_top #bannerGroup,
   #home_top .swiper_container_card { background: var(--ed-paper) !important; }
 
-  /* 主题手机端 bannerGroup 固定高度约 330px，分类横排后留下大片空白；压缩 */
-  #home_top #bannerGroup,
-  #home_top .swiper_container_card { height: auto !important; min-height: 0 !important; }
-  #home_top .categoryGroup { min-height: 0 !important; }
+  /* 横滑容器改成纵向堆叠：分类区在上，推荐卡片在下 */
+  #home_top .swiper_container_card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+  #home_top #bannerGroup {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    display: block !important;
+    padding: 14px 16px 6px !important;
+    box-sizing: border-box !important;
+  }
+  /* 「分类导航 / 全部 ›」标题行（纯 CSS 伪元素，不动 DOM） */
+  #home_top #bannerGroup::before {
+    content: "分类导航";
+    display: block;
+    font-family: Georgia, "Songti SC", "SimSun", serif !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: var(--ed-ink) !important;
+    letter-spacing: .04em;
+    margin-bottom: 10px !important;
+  }
+  #home_top #bannerGroup::after {
+    content: "全部 ›";
+    display: block;
+    position: absolute;
+    top: 14px; right: 16px;
+    font-size: 11px !important;
+    color: var(--ed-sub) !important;
+  }
+  #home_top #bannerGroup { position: relative !important; }
 
   /* 报头（若主题渲染了 .banners-title） */
   #home_top .banners-title-big {
@@ -62,14 +100,14 @@
   }
   #home_top .banners-title-small { color: var(--ed-sub) !important; font-size: 11px !important; }
 
-  /* 首页顶部分类卡：主题手机端把 categoryGroup 设为竖排（flex-column），
-     这里改回横向一排胶囊，解决首屏被 5 个大卡片占满的问题 */
+  /* 分类胶囊：横向一排、可换行、紧凑 */
   #home_top .categoryGroup {
     flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 8px !important;
-    width: auto !important;
+    flex-wrap: wrap !important;
+    gap: 7px !important;
+    width: 100% !important;
     height: auto !important;
+    min-height: 0 !important;
     padding: 0 !important;
   }
   #home_top .categoryGroup .categoryItem {
@@ -82,11 +120,17 @@
   /* 主题在 ≤1200px 隐藏第 3 个分类卡片，手机端要恢复，保证 5 个胶囊都在 */
   #home_top .categoryGroup .categoryItem:nth-child(3) { display: block !important; }
   #home_top .categoryGroup a.categoryButton {
+    display: inline-block !important;
+    height: auto !important;
+    min-height: 0 !important;
     border-radius: 999px !important;
-    border: 1px solid var(--ed-line) !important;
+    border: 1px solid rgba(36,33,31,.18) !important;
     background: transparent !important;
     box-shadow: none !important;
     color: var(--ed-ink) !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+    padding: 6px 12px !important;
   }
   #home_top .categoryGroup .categoryItem:first-child a.categoryButton {
     background: var(--ed-accent) !important;
@@ -96,9 +140,22 @@
   #home_top .categoryGroup a.categoryButton i,
   #home_top .categoryGroup a.categoryButton svg { display: none !important; }
   .categoryButtonText { padding-left: 0 !important; text-align: center !important; }
-  /* 分类胶囊超出屏幕时可横向滑动 */
-  #home_top .swiper_container_card { overflow-x: auto !important; overflow-y: hidden !important; -webkit-overflow-scrolling: touch; }
-  #home_top .swiper_container_card::-webkit-scrollbar { display: none; }
+
+  /* 推荐文章卡片：移到分类下方，保留横滑 */
+  #home_top .topGroup {
+    width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 16px 10px !important;
+    box-sizing: border-box !important;
+    gap: 10px !important;
+  }
+  #home_top .topGroup::-webkit-scrollbar { display: none; }
+  #home_top .topGroup .recent-post-item {
+    flex: 0 0 200px !important;
+    width: 200px !important;
+  }
 
   /* ===== 2. 主题顶部标签栏（首页/前端开发/…/更多）：衬线 + 珊瑚高亮 ===== */
   #category-bar,
